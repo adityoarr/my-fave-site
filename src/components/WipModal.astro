@@ -1,0 +1,160 @@
+---
+interface Props {
+  /** true = modal muncul setiap halaman dibuka; false = sekali per sesi browser */
+  everyVisit?: boolean;
+}
+const { everyVisit = false } = Astro.props;
+---
+
+<!-- pill kecil untuk membuka ulang keterangan -->
+<button type="button" class="wip-open" data-wip-open aria-label="Lihat status pengembangan situs">
+  🚧 wip
+</button>
+
+<!-- modal keterangan "website belum selesai" -->
+<div
+  id="wipModal"
+  class="wip-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="wipTitle"
+  data-every={everyVisit ? '1' : '0'}
+  hidden
+>
+  <div class="wip-back" data-wip-close></div>
+
+  <div class="wip-box">
+    <span class="wip-icon" aria-hidden="true">🚧</span>
+    <p class="wip-kicker">status: work in progress</p>
+    <h2 id="wipTitle">Website ini belum selesai.</h2>
+
+    <p class="wip-desc">
+      Halo, terima kasih sudah mampir! Saat ini situs ini masih dalam tahap
+      pengerjaan — beberapa bagian <b>belum sempurna</b> dan bisa berubah
+      sewaktu-waktu.
+    </p>
+
+    <ul class="wip-list">
+      <li><span>◌</span> sebagian fitur masih uji coba (player, filter, integrasi API)</li>
+      <li><span>◌</span> konten rak masih terus ditambah & dirapikan</li>
+      <li><span>◌</span> tampilan bisa sedikit berbeda di perangkat tertentu</li>
+    </ul>
+
+    <p class="wip-fine">
+      kalau kamu menemukan sesuatu yang aneh, itu bukan imajinasimu —
+      memang masih kukerjakan 😅
+    </p>
+
+    <div class="wip-actions">
+      <button type="button" class="wip-btn" data-wip-close>oke, saya mengerti</button>
+      <span class="wip-hint">klik di luar kotak atau tekan [esc] untuk menutup</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ---------- pill pemicu (pojok kiri bawah) ---------- */
+  .wip-open{
+    position:fixed; left:16px; bottom:16px; z-index:76;
+    font-family:var(--font-m); font-size:.6rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--c-games); background:rgba(24,20,17,.9);
+    border:1px dashed #4a4036; border-radius:999px; padding:.5em 1em;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); transition:.25s;
+  }
+  .wip-open:hover{color:var(--dark); background:var(--c-games); border-color:var(--c-games)}
+  /* diangkat agar tidak tertutup now playing bar di halaman listen */
+  body[data-page="listen"] .wip-open{bottom:120px}
+  @media (max-width:780px){
+    body[data-page="listen"] .wip-open{bottom:190px}
+  }
+
+  /* ---------- modal ---------- */
+  .wip-modal{position:fixed; inset:0; z-index:120; display:grid; place-items:center; padding:1.2rem}
+  .wip-back{position:absolute; inset:0; background:rgba(9,7,6,.85); backdrop-filter:blur(6px)}
+  .wip-box{
+    position:relative; width:min(560px,100%);
+    background:var(--panel); border:1px dashed #4a4036; border-radius:16px;
+    padding:2rem 1.8rem 1.6rem; transform:rotate(-.6deg);
+    box-shadow:0 40px 90px rgba(0,0,0,.6);
+    animation:wipPop .4s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes wipPop{from{transform:rotate(-.6deg) scale(.94); opacity:0}}
+  .wip-icon{font-size:2rem; display:block}
+  .wip-kicker{
+    font-family:var(--font-m); font-size:.62rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--c-games); margin-top:.6rem;
+  }
+  .wip-box h2{
+    font-family:var(--font-d); font-weight:800;
+    font-size:clamp(1.5rem,4vw,2rem); letter-spacing:-.02em; margin-top:.4rem;
+  }
+  .wip-desc{color:var(--mut); font-size:.92rem; margin-top:.8rem}
+  .wip-desc b{color:var(--ink)}
+  .wip-list{margin-top:1rem; display:flex; flex-direction:column; gap:.45rem}
+  .wip-list li{
+    font-family:var(--font-m); font-size:.68rem; color:var(--mut);
+    display:flex; gap:.6rem; align-items:baseline;
+  }
+  .wip-list span{color:var(--c-games)}
+  .wip-fine{
+    font-family:var(--font-m); font-size:.62rem; color:#776d60;
+    margin-top:1rem; font-style:italic;
+  }
+  .wip-actions{margin-top:1.4rem; display:flex; flex-wrap:wrap; align-items:center; gap:1rem}
+  .wip-btn{
+    font-family:var(--font-m); font-size:.7rem; letter-spacing:.12em; text-transform:uppercase;
+    background:var(--c-games); color:var(--dark); font-weight:700;
+    padding:.7em 1.6em; border-radius:999px; transition:.25s;
+  }
+  .wip-btn:hover{transform:scale(1.05)}
+  .wip-hint{font-family:var(--font-m); font-size:.6rem; color:#776d60}
+</style>
+
+<script>
+  const WIP_KEY = 'wipSeen';
+
+  function initWip() {
+    const modal = document.getElementById('wipModal');
+    if (!modal) return;
+
+    const every = modal.dataset.every === '1';
+    const seen = sessionStorage.getItem(WIP_KEY) === '1';
+
+    const open = () => {
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    };
+    const close = () => {
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      sessionStorage.setItem(WIP_KEY, '1');
+    };
+
+    // muncul otomatis saat akses situs (jeda sebentar biar tidak mengejutkan)
+    if (every || !seen) {
+      setTimeout(open, 700);
+    }
+
+    // tutup lewat tombol, backdrop, atau [esc]
+    modal.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('[data-wip-close]')) close();
+    });
+
+    // buka ulang lewat pill 🚧
+    document.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('[data-wip-open]')) open();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) close();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWip);
+  } else {
+    initWip();
+  }
+</script>
