@@ -1,0 +1,236 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const filters = [
+  { value: 'all', label: 'Semua' },
+  { value: 'manga', label: 'Manga' },
+  { value: 'manhwa', label: 'Manhwa' },
+  { value: 'manhua', label: 'Manhua' },
+  { value: 'novel', label: 'Novel' },
+  { value: 'majalah', label: 'Majalah' },
+];
+
+const books = [
+  {
+    seed: 'b-onepiece',
+    cat: 'manga',
+    catLabel: 'Manga',
+    title: 'One Piece',
+    author: 'Eiichiro Oda',
+    note: '“Arc Elbaf makin nggak masuk akal. Dalam artian baik.”',
+    key: 'one-piece',
+    unit: 'ch',
+    cur: 1112,
+    max: 1120,
+    flag: 'on-going',
+  },
+  {
+    seed: 'b-vagabond',
+    cat: 'manga',
+    catLabel: 'Manga',
+    title: 'Vagabond',
+    author: 'Takehiko Inoue',
+    note: '“Hiatus 10 tahun lebih. Tetap setia. 😭”',
+    key: 'vagabond',
+    unit: 'ch',
+    cur: 327,
+    max: 400,
+    flag: 'hiatus abadi',
+  },
+  {
+    seed: 'b-sl',
+    cat: 'manhwa',
+    catLabel: 'Manhwa',
+    title: 'Solo Leveling',
+    author: 'Chugong & DUBU',
+    note: '“Tamat. Panel-nya DUBU nggak ada obat.”',
+    key: 'solo-leveling',
+    unit: 'ch',
+    cur: 179,
+    max: 179,
+    flag: 'tamat ✓',
+  },
+  {
+    seed: 'b-tog',
+    cat: 'manhwa',
+    catLabel: 'Manhwa',
+    title: 'Tower of God',
+    author: 'SIU',
+    note: '“Ikut dari 2014. Ini bukan hobi, ini komitmen.”',
+    key: 'tower-of-god',
+    unit: 'ch',
+    cur: 620,
+    max: 650,
+    flag: 'on-going',
+  },
+  {
+    seed: 'b-todag',
+    cat: 'manhua',
+    catLabel: 'Manhua',
+    title: 'Tales of Demons and Gods',
+    author: 'Mad Snail',
+    note: '“Guilty pleasure pas makan siang.”',
+    key: 'tales-of-demons-and-gods',
+    unit: 'ch',
+    cur: 480,
+    max: 520,
+    flag: 'on-going',
+  },
+  {
+    seed: 'b-martial',
+    cat: 'manhua',
+    catLabel: 'Manhua',
+    title: 'Martial Peak',
+    author: 'Momo',
+    note: '“3.000 bab lebih. Jangan tanya kapan selesai.”',
+    key: 'martial-peak',
+    unit: 'ch',
+    cur: 3120,
+    max: 3500,
+    flag: 'maraton tiap minggu',
+  },
+  {
+    seed: 'b-bumi',
+    cat: 'novel',
+    catLabel: 'Novel',
+    title: 'Bumi Manusia',
+    author: 'Pramoedya Ananta Toer',
+    note: '“Pram bikin sejarah terasa seperti gosip tetangga. Seru.”',
+    key: 'bumi-manusia',
+    unit: 'hal',
+    cur: 260,
+    max: 535,
+    flag: 'lagi dibaca',
+  },
+  {
+    seed: 'b-laut',
+    cat: 'novel',
+    catLabel: 'Novel',
+    title: 'Laut Bercerita',
+    author: 'Dee Lestari',
+    note: '“Nangis di halaman terakhir, di kereta, tanpa suara.”',
+    key: 'laut-bercerita',
+    unit: 'hal',
+    cur: 372,
+    max: 372,
+    flag: 'tamat ★',
+  },
+  {
+    seed: 'b-norwegian',
+    cat: 'novel',
+    catLabel: 'Novel',
+    title: 'Norwegian Wood',
+    author: 'Haruki Murakami',
+    note: '“Nunggu mood baca berat datang sendiri.”',
+    key: 'norwegian-wood',
+    unit: 'hal',
+    cur: 0,
+    max: 384,
+    flag: 'wishlist',
+  },
+  {
+    seed: 'b-natgeo',
+    cat: 'majalah',
+    catLabel: 'Majalah',
+    title: 'National Geographic',
+    author: 'Edisi Oktober 2026',
+    note: '“Fotonya saja sudah worth it.”',
+    key: 'natgeo-okt-2026',
+    unit: 'hal',
+    cur: 12,
+    max: 160,
+    flag: 'PDF di tablet',
+  },
+];
+---
+
+<BaseLayout
+  title="Read — rakku"
+  description="Manga, manhwa, manhua, novel, sampai majalah. Bacaan tidak diputar di sini — tapi progresnya kucatat."
+  acc="read"
+  page="read"
+>
+  <section class="p-hero">
+    <div class="wrap">
+      <p class="crumb">rak / bacaan</p>
+      <h1>Read.</h1>
+
+      <p class="lead">
+        Manga, manhwa, manhua, novel, sampai majalah. Bacaan tidak diputar di
+        sini — tapi progresnya kucatat. Pencet <b>+1</b> kalau baru selesai satu
+        bab/halaman 😉
+      </p>
+
+      <div class="p-stats">
+        <span><b>10</b> bacaan</span>
+        <span><b>5</b> genre</span>
+        <span><b>3</b> tamat</span>
+        <span>rekor: 14 bab sekali duduk</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="filters wrap">
+    {
+      filters.map((filter, index) => (
+        <button
+          class:list={['fbtn', { on: index === 0 }]}
+          data-filter={filter.value}
+          type="button"
+        >
+          {filter.label}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="r-grid wrap" data-stagger>
+    {
+      books.map((book) => (
+        <article
+          class:list={['book', 'rv', { done: book.cur >= book.max }]}
+          data-cat={book.cat}
+          data-key={book.key}
+          data-unit={book.unit}
+          data-cur={book.cur}
+          data-max={book.max}
+        >
+          <div class="b-cover">
+            <img
+              src={`https://picsum.photos/seed/${book.seed}/400/560`}
+              alt={`Sampul ${book.title}`}
+              width="400"
+              height="560"
+              loading="lazy"
+            />
+            <span class="b-cat chip read">{book.catLabel}</span>
+          </div>
+
+          <div class="b-body">
+            <strong class="b-title">{book.title}</strong>
+            <span class="b-author">{book.author}</span>
+            <p class="b-note">{book.note}</p>
+
+            <div class="prog">
+              <i></i>
+            </div>
+
+            <div class="b-meta">
+              <span class="b-count">{book.unit} 0/0</span>
+              <span class="b-pct">0%</span>
+            </div>
+
+            <div class="b-actions">
+              <button class="b-add" type="button">
+                ＋1 {book.unit === 'ch' ? 'bab' : 'hal'}
+              </button>
+              <span class:list={['b-flag', { 'done-f': book.cur >= book.max }]}>
+                {book.flag}
+              </span>
+            </div>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</BaseLayout>

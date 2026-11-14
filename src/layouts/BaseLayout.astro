@@ -1,0 +1,148 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  acc?: string;
+  page?: string;
+}
+
+const {
+  title,
+  description = 'Arsip kecil hal-hal favorit. Dikurasi manual, diperbarui tiap lagi jatuh cinta sama sesuatu yang baru.',
+  acc = 'home',
+  page = 'home',
+} = Astro.props;
+
+const navItems = [
+  { href: '/', label: 'Home', color: 'var(--c-home)' },
+  { href: '/listen', label: 'Listen', color: 'var(--c-listen)' },
+  { href: '/watchlist', label: 'Watchlist', color: 'var(--c-watch)' },
+  { href: '/read', label: 'Read', color: 'var(--c-read)' },
+  { href: '/games', label: 'Games', color: 'var(--c-games)' },
+];
+
+const socialItems = [
+  { label: 'Letterboxd ↗', href: '#' },
+  { label: 'AniList ↗', href: '#' },
+  { label: 'Last.fm ↗', href: '#' },
+  { label: 'Steam ↗', href: '#' },
+  { label: 'Goodreads ↗', href: '#' },
+];
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '');
+---
+
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+
+  <body data-acc={acc} data-page={page}>
+    <div class="bg-glow"></div>
+    <div class="bg-dots"></div>
+    <div class="noise"></div>
+
+    <header class="site-head">
+      <div class="wrap head-in">
+        <a class="brand" href="/">
+          vibes<span class="b-dot">·</span>arr
+          <small>personal picks</small>
+        </a>
+
+        <button id="navBtn" aria-expanded="false" aria-controls="siteNav" aria-label="Buka menu">
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav id="siteNav" aria-label="Navigasi utama">
+          <ul>
+            {
+              navItems.map((item) => {
+                const isActive = item.href === '/'
+                  ? currentPath === ''
+                  : currentPath === item.href;
+
+                return (
+                  <li>
+                    <a
+                      href={item.href}
+                      class:list={[{ active: isActive }]}
+                      style={`--dot:${item.color}`}
+                      aria-current={isActive ? 'page' : undefined}
+                    >
+                      <i class="ndot"></i>
+                      {item.label}
+                    </a>
+                  </li>
+                );
+              })
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap foot-in">
+        <div>
+          <p class="f-logo">rak·ku</p>
+          <p class="f-desc">
+            Arsip kecil hal-hal favorit. Dikurasi manual, diperbarui tiap lagi
+            jatuh cinta sama sesuatu yang baru.
+          </p>
+        </div>
+
+        <div>
+          <h4>Navigasi</h4>
+          <ul class="f-links">
+            {
+              navItems.map((item) => (
+                <li>
+                  <a href={item.href}>{item.label}</a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div>
+          <h4>Aku juga di</h4>
+          <ul class="f-links">
+            {
+              socialItems.map((item) => (
+                <li>
+                  <a href={item.href} target="_blank" rel="noopener noreferrer">
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="wrap foot-bot">
+        <span>© <span id="y">2026</span> vibes — dibuat manual, bukan template</span>
+        <span>dirakit dengan <b class="heart">♥</b> + kopi</span>
+      </div>
+    </footer>
+
+    <script>
+      import '../scripts/main.js';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "astro",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/index.html", "destination": "/" },
+    { "source": "/listen.html", "destination": "/listen" },
+    { "source": "/watchlist.html", "destination": "/watchlist" },
+    { "source": "/read.html", "destination": "/read" },
+    { "source": "/games.html", "destination": "/games" }
+  ]
+}

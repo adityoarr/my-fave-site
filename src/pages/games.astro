@@ -1,0 +1,151 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const games = [
+  {
+    seed: 'g-hades2',
+    title: 'Hades II',
+    status: '● lagi main',
+    statusClass: 'st-play',
+    platforms: ['PC', 'Switch'],
+    hours: '± 84 jam',
+    rating: '★★★★★ 4.9',
+    note: '“Supergiant nggak pernah miss. Sekali run lagi deh… (84 jam kemudian)”',
+  },
+  {
+    seed: 'g-elden',
+    title: 'Elden Ring + Shadow of the Erdtree',
+    status: '✓ tamat',
+    statusClass: 'st-done',
+    platforms: ['PC'],
+    hours: '± 210 jam',
+    rating: '★★★★★ 4.7',
+    note: '“Tamat setelah tiga tahun denial. Malenia, aku maafkan kamu.”',
+  },
+  {
+    seed: 'g-stardew',
+    title: 'Stardew Valley',
+    status: '● lagi main',
+    statusClass: 'st-play',
+    platforms: ['PC', 'Android'],
+    hours: '± 340 jam',
+    rating: '★★★★★ 4.8',
+    note: '“Satu petak lagi, janji. (narasi: tidak berhenti di satu petak)”',
+  },
+  {
+    seed: 'g-celeste',
+    title: 'Celeste',
+    status: '✓ tamat',
+    statusClass: 'st-done',
+    platforms: ['Switch'],
+    hours: '± 26 jam',
+    rating: '★★★★★ 5.0',
+    note: '“Nangis di chapter 7. Nggak malu.”',
+  },
+  {
+    seed: 'g-hollow',
+    title: 'Hollow Knight',
+    status: '◌ backlog',
+    statusClass: 'st-back',
+    platforms: ['PC'],
+    hours: '± 11 jam',
+    rating: 'belum dinilai',
+    note: '“Nyangkut di Radiance. Someday, ksatria kecil. Someday.”',
+  },
+  {
+    seed: 'g-disco',
+    title: 'Disco Elysium',
+    status: '◌ backlog',
+    statusClass: 'st-back',
+    platforms: ['PC'],
+    hours: '0 jam',
+    rating: 'belum dinilai',
+    note: '“Nunggu mood baca berat. Katanya sih game terbaik dekade ini.”',
+  },
+  {
+    seed: 'g-totk',
+    title: 'Zelda: Tears of the Kingdom',
+    status: '✓ tamat',
+    statusClass: 'st-done',
+    platforms: ['Switch'],
+    hours: '± 150 jam',
+    rating: '★★★★★ 4.9',
+    note: '“Aku datang untuk menyelamatkan Zelda, aku stayed untuk bikin pesawat.”',
+  },
+  {
+    seed: 'g-deadcells',
+    title: 'Dead Cells',
+    status: '✕ dropped',
+    statusClass: 'st-drop',
+    platforms: ['Android'],
+    hours: '± 40 jam',
+    rating: '★★★☆☆ 3.5',
+    note: '“Seru kok. Tapi jariku menyerah duluan 😅”',
+  },
+];
+---
+
+<BaseLayout
+  title="Games — rakku"
+  description="Satu-satunya rak tanpa sekat — semua genre campur aduk, dari roguelike sampai farming simulator."
+  acc="games"
+  page="games"
+>
+  <section class="p-hero">
+    <div class="wrap">
+      <p class="crumb">rak / mainan</p>
+      <h1>Games.</h1>
+
+      <p class="lead">
+        Satu-satunya rak tanpa sekat — semua genre campur aduk, dari roguelike
+        sampai farming simulator. Yang penting bikin lupa waktu.
+      </p>
+
+      <div class="p-stats">
+        <span><b>8</b> judul</span>
+        <span><b>±850</b> jam total</span>
+        <span><b>3</b> tamat tahun ini</span>
+        <span>prinsip: backlog ≠ kegagalan</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="g-grid wrap" data-stagger>
+    {
+      games.map((game) => (
+        <article class="game rv">
+          <div class="g-cover">
+            <img
+              src={`https://picsum.photos/seed/${game.seed}/400/500`}
+              alt={`Sampul ${game.title}`}
+              width="400"
+              height="500"
+              loading="lazy"
+            />
+          </div>
+
+          <div class="g-body">
+            <div class="g-top">
+              <strong>{game.title}</strong>
+              <span class={`st ${game.statusClass}`}>{game.status}</span>
+            </div>
+
+            <div class="g-plat">
+              {game.platforms.map((platform) => <span>{platform}</span>)}
+            </div>
+
+            <p class="g-stat">
+              <b>{game.hours}</b> · {game.rating}
+            </p>
+
+            <p class="g-note">{game.note}</p>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <p class="fine wrap" style="margin-top: 2rem;">
+    * jam main berdasarkan ingatan dan rasa bersalah. Angka mungkin tidak akurat.
+  </p>
+</BaseLayout>

@@ -1,0 +1,313 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const audioBase = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-';
+
+const filters = [
+  { value: 'all', label: 'Semua' },
+  { value: 'ost', label: 'OST Anime' },
+  { value: 'non', label: 'Non-Anime' },
+  { value: 'remix', label: 'Remix' },
+  { value: 'instrumental', label: 'Instrumental' },
+  { value: 'islamic', label: 'Islamic' },
+  { value: 'youtube', label: 'From YouTube' },
+];
+
+const groups = [
+  {
+    id: 'ost',
+    title: 'OST Anime',
+    tracks: [
+      { idx: '01', title: 'KICK BACK', meta: 'Kenshi Yonezu · OP Chainsaw Man', img: 'tr-kickback', dur: '4:28', src: `${audioBase}1.mp3` },
+      { idx: '02', title: 'IDOL', meta: 'YOASOBI · OP Oshi no Ko', img: 'tr-idol', dur: '3:33', src: `${audioBase}2.mp3` },
+      { idx: '03', title: 'Again', meta: 'YUI · OP Fullmetal Alchemist: Brotherhood', img: 'tr-again', dur: '4:12', src: `${audioBase}3.mp3` },
+      { idx: '04', title: 'Gurenge', meta: 'LiSA · OP Kimetsu no Yaiba', img: 'tr-gurenge', dur: '3:58' },
+      { idx: '05', title: 'Unravel', meta: 'TK from Ling tosite sigure · OP Tokyo Ghoul', img: 'tr-unravel', dur: '3:57', src: `${audioBase}4.mp3` },
+    ],
+  },
+  {
+    id: 'non',
+    title: 'Non-Anime',
+    tracks: [
+      { idx: '01', title: 'Bohemian Rhapsody', meta: 'Queen', img: 'tr-queen', dur: '5:55', src: `${audioBase}8.mp3` },
+      { idx: '02', title: 'Here Comes the Sun', meta: 'The Beatles', img: 'tr-beatles', dur: '3:05' },
+      { idx: '03', title: 'Levitating', meta: 'Dua Lipa', img: 'tr-levitating', dur: '3:23', src: `${audioBase}9.mp3` },
+      { idx: '04', title: 'Get You', meta: 'Daniel Caesar ft. Kali Uchis', img: 'tr-getyou', dur: '4:38', src: `${audioBase}10.mp3` },
+      { idx: '05', title: 'Monokrom', meta: 'Tulus', img: 'tr-monokrom', dur: '4:11', src: `${audioBase}5.mp3` },
+      { idx: '06', title: 'Sempurna', meta: 'Andra & The Backbone', img: 'tr-sempurna', dur: '4:35', src: `${audioBase}6.mp3` },
+      { idx: '07', title: 'Zona Nyaman', meta: 'Fourtwnty', img: 'tr-zona', dur: '4:04' },
+      { idx: '08', title: 'Hati-Hati di Jalan', meta: 'Tulus', img: 'tr-hati', dur: '4:02', src: `${audioBase}7.mp3` },
+    ],
+  },
+  {
+    id: 'remix',
+    title: 'Remix',
+    tracks: [
+      { idx: '01', title: 'Blinding Lights (Injixo Remix)', meta: 'The Weeknd', img: 'tr-blinding', dur: '3:45', src: `${audioBase}11.mp3` },
+      { idx: '02', title: 'Something Just Like This (R3HAB Remix)', meta: 'The Chainsmokers & Coldplay', img: 'tr-sjlt', dur: '4:12', src: `${audioBase}12.mp3` },
+      { idx: '03', title: 'Stay (Chezile Remix)', meta: 'The Kid LAROI & Justin Bieber', img: 'tr-stay', dur: '2:58' },
+    ],
+  },
+  {
+    id: 'instrumental',
+    title: 'Instrumental',
+    tracks: [
+      { idx: '01', title: 'One Summer’s Day', meta: 'Joe Hisaishi · OST Spirited Away', img: 'tr-hisaishi1', dur: '4:09', src: `${audioBase}13.mp3` },
+      { idx: '02', title: 'Merry-Go-Round of Life', meta: 'Joe Hisaishi · OST Howl’s Moving Castle', img: 'tr-hisaishi2', dur: '5:12', src: `${audioBase}14.mp3` },
+      { idx: '03', title: 'Nandemonaiya (Piano Ver.)', meta: 'RADWIMPS · OST Your Name', img: 'tr-nandemonaiya', dur: '5:41', src: `${audioBase}15.mp3` },
+    ],
+  },
+  {
+    id: 'islamic',
+    title: 'Islamic',
+    tracks: [
+      { idx: '01', title: 'Kun Anta', meta: 'Humood AlKhudher', img: 'tr-kunanta', dur: '4:24', src: `${audioBase}16.mp3` },
+      { idx: '02', title: 'Rabbuna', meta: 'Maher Zain', img: 'tr-rabbuna', dur: '4:50', src: `${audioBase}17.mp3` },
+      { idx: '03', title: 'Tombo Ati', meta: 'Opick', img: 'tr-tomboati', dur: '4:05' },
+    ],
+  },
+  {
+    id: 'youtube',
+    title: 'From YouTube',
+    // Data fallback ini akan otomatis ditimpa oleh API kamu saat halaman dibuka.
+    // Namun jika API down, data ini yang akan ditampilkan.
+    tracks: [
+      { idx: '01', title: 'Memuat dari API...', meta: 'Harap tunggu', img: 'tr-lofi', dur: '--:--', yt: 'jfKfPfyJRdk', type: 'yt' },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Listen — vibes·arr"
+  description="Soundtrack hidupku beberapa bulan terakhir. Beberapa bisa langsung diputar, beberapa masih arsip fisik."
+  acc="listen"
+  page="listen"
+>
+  <style is:inline>
+    /* Floating YouTube Player */
+    .yt-player-wrap {
+      position: fixed;
+      bottom: 110px; /* Tepat di atas nowbar */
+      right: 24px;
+      width: 320px;
+      height: 180px;
+      background: #000;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 24px 48px rgba(0,0,0,.65);
+      border: 1px solid var(--line);
+      z-index: 80;
+      transform: translateY(20px) scale(0.95);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .yt-player-wrap.show {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .yt-player-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .yt-close-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+      z-index: 2;
+      transition: background 0.2s;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .yt-close-btn:hover {
+      background: var(--c-listen);
+      color: var(--dark);
+      border-color: var(--c-listen);
+    }
+    /* tombol minimize di pojok kiri player */
+    .yt-min-btn{
+    position:absolute; top:8px; left:8px; z-index:2;
+    width:28px; height:28px; border-radius:50%;
+    background:rgba(0,0,0,.75); color:#fff;
+    border:1px solid rgba(255,255,255,.1);
+    display:grid; place-items:center; font-size:.7rem;
+    transition:background .2s;
+    }
+    .yt-min-btn:hover{background:var(--c-watch);color:var(--dark)}
+
+    /* kondisi video disembunyikan: dilempar off-screen, BUKAN display:none */
+    .yt-player-wrap.video-hidden{
+    transform:translate(-9999px,-9999px);
+    opacity:0;
+    pointer-events:none;
+    }
+
+    /* pill kecil untuk memunculkan video lagi */
+    .yt-restore{
+    position:fixed; right:24px; bottom:110px; z-index:80;
+    width:46px; height:46px; border-radius:50%;
+    background:var(--acc); color:var(--dark);
+    display:grid; place-items:center; font-size:1rem;
+    box-shadow:0 12px 30px rgba(0,0,0,.55);
+    opacity:0; pointer-events:none; transform:translateY(10px);
+    transition:.3s;
+    }
+    .yt-restore.show{opacity:1; pointer-events:auto; transform:none}
+    @media (max-width: 780px) {
+      .yt-player-wrap {
+        width: calc(100% - 48px);
+        right: 24px;
+        bottom: 180px; /* Lebih tinggi di mobile karena nowbar lebih tebal */
+        height: 200px;
+      }
+
+      .yt-restore{bottom:180px}
+    }
+  </style>
+
+  <section class="p-hero">
+    <div class="wrap">
+      <p class="crumb">rak / dengerin</p>
+      <h1>Listen<span class="p-dot">.</span></h1>
+
+      <p class="lead">
+        Soundtrack hidupku beberapa bulan terakhir. Beberapa bisa langsung
+        diputar di sini, beberapa cuma numpang nama karena filenya masih di
+        kaset/vinyl 😅
+      </p>
+
+      <div class="p-stats">
+        <span><b>25+</b> trek</span>
+        <span><b>Live</b> API sync</span>
+        <span><b>7</b> kategori</span>
+        <span>mode: urutan sakral, no shuffle</span>
+      </div>
+
+      <div class="legend">
+        <span><i class="lg" style="background:var(--c-read)"></i> audio lokal</span>
+        <span><i class="lg" style="background:var(--c-watch)"></i> via YouTube API</span>
+        <span><i class="lg" style="background:#8b8175"></i> tanpa player</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="filters wrap">
+    {
+      filters.map((filter, index) => (
+        <button
+          type="button"
+          class:list={['fbtn', { on: index === 0 }]}
+          data-filter={filter.value}
+        >
+          {filter.label}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    groups.map((group) => (
+      <section class="group wrap" data-group={group.id}>
+        <div class="g-head">
+          <h3>{group.title}</h3>
+          <span class="g-count">{group.tracks.length} trek</span>
+          <span class="g-line"></span>
+        </div>
+
+        <ul class="tracks" data-stagger>
+          {
+            group.tracks.map((track) => (
+              <li
+                class:list={['track', 'rv', { off: !track.src && !track.yt }]}
+                data-cat={group.id}
+                data-src={track.src}
+                data-yt={track.yt}
+                data-type={track.type}
+              >
+                <span class="t-idx">{track.idx}</span>
+
+                <button
+                  type="button"
+                  class="t-play"
+                  disabled={!track.src && !track.yt}
+                  aria-label={track.src || track.yt ? `Putar ${track.title}` : `${track.title} tanpa player`}
+                >
+                  {(track.src || track.yt) ? '▶' : '✕'}
+                </button>
+
+                <img
+                  src={track.yt ? `https://img.youtube.com/vi/${track.yt}/mqdefault.jpg` : `https://picsum.photos/seed/${track.img}/90/90`}
+                  alt=""
+                  width="44"
+                  height="44"
+                  loading="lazy"
+                  decoding="async"
+                  onerror="this.src='/images/placeholder.svg'"
+                />
+
+                <div class="t-info">
+                  <strong>{track.title}</strong>
+                  <span>{track.meta}</span>
+                </div>
+
+                <span class="t-dur">{track.dur}</span>
+
+                <span class:list={['t-status', (track.src || track.yt) ? 'ok' : 'no']}>
+                  {track.src ? '● audio lokal' : track.yt ? '● via YouTube' : '✕ tanpa player'}
+                </span>
+
+                <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    ))
+  }
+
+  <!-- Floating YouTube Player -->
+  <div id="ytPlayerWrap" class="yt-player-wrap">
+    <div id="ytPlayerFrame"></div>
+    <button id="ytMinBtn" class="yt-min-btn" aria-label="Sembunyikan video, audio tetap jalan">🙈</button>
+    <button id="ytCloseBtn" class="yt-close-btn" aria-label="Tutup player">✕</button>
+  </div>
+  <button id="ytRestoreBtn" class="yt-restore" aria-label="Tampilkan video YouTube">♫</button>
+
+  <div id="nowbar" class="nowbar">
+    <div class="wrap nb-in">
+      <div class="nb-left">
+        <div class="disc"></div>
+        <div class="nb-meta">
+          <strong id="nbTitle">—</strong>
+          <span id="nbArtist">—</span>
+        </div>
+      </div>
+
+      <div class="nb-mid">
+        <div class="nb-ctrl">
+          <button id="nbPrev" class="nb-btn" type="button" aria-label="Trek sebelumnya">⏮</button>
+          <button id="nbPlay" class="nb-btn main" type="button" aria-label="Putar / jeda">▶</button>
+          <button id="nbNext" class="nb-btn" type="button" aria-label="Trek berikutnya">⏭</button>
+        </div>
+
+        <div class="nb-row">
+          <span id="nbCur" class="nb-time">0:00</span>
+          <div id="nbBar" class="bar">
+            <div id="nbFill" class="fill"></div>
+          </div>
+          <span id="nbDur" class="nb-time">0:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

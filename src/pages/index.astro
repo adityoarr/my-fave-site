@@ -1,0 +1,308 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const tickerItems = [
+  { label: 'SEDANG DIPUTAR ♫', value: 'KICK BACK — Kenshi Yonezu', className: 'hi-l' },
+  { label: 'LAGI DIBACA ✎', value: 'One Piece ch.1112', className: 'hi-r' },
+  { label: 'REPLAY TERUS ◈', value: 'Hades II', className: 'hi-g' },
+  { label: 'BARU TAMAT ✦', value: 'Solo Leveling', className: 'hi-r' },
+  { label: 'MOOD MALAM INI: lo-fi + hujan ☂', value: '', className: '' },
+];
+
+const stickers = [
+  {
+    img: 'https://picsum.photos/seed/rak-vinyl/300/300',
+    title: 'KICK BACK',
+    status: 'now playing ♫',
+  },
+  {
+    img: 'https://picsum.photos/seed/rak-heron/300/300',
+    title: 'THE BOY & THE HERON',
+    status: 'rewatch ▶',
+  },
+  {
+    img: 'https://picsum.photos/seed/rak-op/300/300',
+    title: 'ONE PIECE VOL.105',
+    status: 'baru datang ✎',
+  },
+];
+
+const ledgerItems = [
+  { label: '60+ lagu dirotasi', color: 'var(--c-listen)' },
+  { label: '24 tontonan', color: 'var(--c-watch)' },
+  { label: '18 bacaan', color: 'var(--c-read)' },
+  { label: '8+ game', color: 'var(--c-games)' },
+  { label: 'kurasi terakhir: hari ini', color: 'var(--c-home)', className: 'l-upd' },
+];
+
+const recentItems = [
+  {
+    idx: '01',
+    href: '/listen',
+    img: 'https://picsum.photos/seed/it-kickback/96/96',
+    title: 'KICK BACK',
+    sub: 'Kenshi Yonezu — OP Chainsaw Man',
+    chip: 'Listen · OST Anime',
+    type: 'listen',
+    date: '08 Nov',
+  },
+  {
+    idx: '02',
+    href: '/watchlist',
+    img: 'https://picsum.photos/seed/it-heron/96/96',
+    title: 'The Boy and the Heron',
+    sub: 'Film · Studio Ghibli, 2023',
+    chip: 'Watchlist · Film',
+    type: 'watch',
+    date: '07 Nov',
+  },
+  {
+    idx: '03',
+    href: '/read',
+    img: 'https://picsum.photos/seed/it-op105/96/96',
+    title: 'One Piece Vol. 105',
+    sub: 'Eiichiro Oda — akhirnya sampai rak',
+    chip: 'Read · Manga',
+    type: 'read',
+    date: '06 Nov',
+  },
+  {
+    idx: '04',
+    href: '/games',
+    img: 'https://picsum.photos/seed/it-hades/96/96',
+    title: 'Hades II',
+    sub: 'Supergiant Games — 84 jam dan terus',
+    chip: 'Games',
+    type: 'games',
+    date: '05 Nov',
+  },
+  {
+    idx: '05',
+    href: '/listen',
+    img: 'https://picsum.photos/seed/it-monokrom/96/96',
+    title: 'Monokrom',
+    sub: 'Tulus — lagu hujan wajib',
+    chip: 'Listen · Indonesia',
+    type: 'listen',
+    date: '04 Nov',
+  },
+  {
+    idx: '06',
+    href: '/watchlist',
+    img: 'https://picsum.photos/seed/it-frieren/96/96',
+    title: 'Frieren — Eps 28',
+    sub: '“Saat Perayaan” · Madhouse',
+    chip: 'Watchlist · Anime',
+    type: 'watch',
+    date: '03 Nov',
+  },
+  {
+    idx: '07',
+    href: '/read',
+    img: 'https://picsum.photos/seed/it-sl/96/96',
+    title: 'Solo Leveling',
+    sub: 'Chugong & DUBU — tamat 🎉',
+    chip: 'Read · Manhwa',
+    type: 'read',
+    date: '02 Nov',
+  },
+  {
+    idx: '08',
+    href: '/listen',
+    img: 'https://picsum.photos/seed/it-queen/96/96',
+    title: 'Bohemian Rhapsody',
+    sub: 'Queen — klasik tidak pernah salah',
+    chip: 'Listen · Non-Anime',
+    type: 'listen',
+    date: '01 Nov',
+  },
+  {
+    idx: '09',
+    href: '/read',
+    img: 'https://picsum.photos/seed/it-laut/96/96',
+    title: 'Laut Bercerita',
+    sub: 'Dee Lestari — nangis di halaman terakhir',
+    chip: 'Read · Novel',
+    type: 'read',
+    date: '30 Okt',
+  },
+  {
+    idx: '10',
+    href: '/games',
+    img: 'https://picsum.photos/seed/it-erdtree/96/96',
+    title: 'Elden Ring: Shadow of the Erdtree',
+    sub: 'Tiga tahun denial, akhirnya tamat',
+    chip: 'Games',
+    type: 'games',
+    date: '28 Okt',
+  },
+];
+
+const doors = [
+  {
+    no: 'R-01',
+    href: '/listen',
+    name: 'Listen',
+    count: '16 trek · 4 kategori',
+    color: 'var(--c-listen)',
+  },
+  {
+    no: 'R-02',
+    href: '/watchlist',
+    name: 'Watchlist',
+    count: '11 judul · 9 bisa diputar',
+    color: 'var(--c-watch)',
+  },
+  {
+    no: 'R-03',
+    href: '/read',
+    name: 'Read',
+    count: '10 bacaan · 5 genre',
+    color: 'var(--c-read)',
+  },
+  {
+    no: 'R-04',
+    href: '/games',
+    name: 'Games',
+    count: '8 judul · ±850 jam',
+    color: 'var(--c-games)',
+  },
+];
+---
+
+<BaseLayout
+  title="rakku — koleksi favorit pribadi"
+  acc="home"
+  page="home"
+>
+  <div class="ticker" aria-label="Ticker">
+    <div class="tick-track">
+      {
+        Array.from({ length: 2 }).map((_, halfIndex) => (
+          <div class="half" aria-hidden={halfIndex === 1 ? 'true' : undefined}>
+            {
+              tickerItems.map((item) => (
+                <span>
+                  <b class={item.className}>{item.label}</b>
+                  {item.value ? ` ${item.value}` : ''}
+                </span>
+              ))
+            }
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <section class="mast wrap">
+    <div>
+      <p class="kicker rv">
+        <span class="live-dot"></span>
+        KATALOG PRIBADI — PEMBARUAN 09·11·2026
+      </p>
+
+      <h1 class="mast-title rv">
+        Satu rak berisi
+        <span id="flipWord" class="flip" style="color: var(--c-listen)">lagu</span>
+        favoritku.
+      </h1>
+
+      <p class="mast-sub rv">
+        Kumpulan hal-hal kecil yang bikin betah: trek yang kuputar ulang, film
+        yang bikin susah move on, sampai manga yang kutunggu tiap minggu.
+        Semua dipilih manual — <em>nggak ada algoritma di sini</em>.
+      </p>
+
+      <div class="mast-links rv">
+        <a class="arrow-link" href="/listen" style="--alc: var(--c-listen)">
+          buka rak dengerin <span>→</span>
+        </a>
+        <a class="arrow-link" href="/watchlist" style="--alc: var(--c-watch)">
+          lihat watchlist <span>→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="stack rv" data-stagger>
+      {
+        stickers.map((sticker) => (
+          <figure class="sticker">
+            <img src={sticker.img} alt={sticker.title} width="300" height="300" loading="lazy" />
+            <figcaption class="cap">
+              <span>{sticker.title}</span>
+              <span>{sticker.status}</span>
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </section>
+
+  <div class="ledger wrap rv" data-stagger>
+    {
+      ledgerItems.map((item) => (
+        <span class={item.className}>
+          <i class="ldot" style={`background:${item.color}`}></i>
+          {item.label}
+        </span>
+      ))
+    }
+  </div>
+
+  <section>
+    <div class="sec-head wrap">
+      <span class="no">01 /</span>
+      <h2>Baru Ditambahkan</h2>
+      <span class="rule"></span>
+      <a class="more" href="#rak">rak lengkap ↓</a>
+    </div>
+
+    <div class="recent wrap" data-stagger>
+      {
+        recentItems.map((item) => (
+          <a class={`row rv ${item.type}`} href={item.href}>
+            <span class="idx">{item.idx}</span>
+            <img src={item.img} alt={item.title} width="54" height="54" loading="lazy" />
+            <span class="t">
+              <strong>{item.title}</strong>
+              <span>{item.sub}</span>
+            </span>
+            <span class={`chip ${item.type}`}>{item.chip}</span>
+            <time>{item.date}</time>
+            <span class="go">→</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section id="rak" class="wrap">
+    <div class="sec-head">
+      <span class="no">02 /</span>
+      <h2>Buka per Rak</h2>
+      <span class="rule"></span>
+    </div>
+
+    <nav class="doors" data-stagger>
+      {
+        doors.map((door) => (
+          <a class="door rv" href={door.href} style={`--dc:${door.color}`}>
+            <span class="d-no">{door.no}</span>
+            <span class="d-name">{door.name}</span>
+            <span class="d-count">{door.count}</span>
+            <span class="d-go">→</span>
+          </a>
+        ))
+      }
+    </nav>
+  </section>
+
+  <aside class="note wrap rv">
+    <p>
+      “Cara kurasinya sederhana: kalau sebuah judul kuputar, kutonton, atau
+      kumainkan lebih dari tiga kali tanpa disuruh — otomatis masuk rak.
+      Nggak ada syarat lain.”
+    </p>
+    <p class="sig">— pemilik rak, ditulis sambil hujan-hujanan ☕</p>
+  </aside>
+</BaseLayout>

@@ -1,0 +1,51 @@
+# ---------- dependencies ----------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# ---------- build output Astro ----------
+dist/
+.astro/
+
+# ---------- output deploy tool ----------
+.vercel/
+.netlify/
+
+# ---------- environment variables (RAHASIA — jangan ikut commit) ----------
+.env
+.env.*
+!.env.example
+
+# ---------- cache & tooling ----------
+.cache/
+.turbo/
+coverage/
+.eslintcache
+*.tsbuildinfo
+
+# ---------- file sistem operasi ----------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ---------- editor / IDE ----------
+.idea/
+*.swp
+*.swo
+*~
+# Catatan: folder .vscode/ sengaja TIDAK di-ignore karena Astro
+# menyarankan beberapa setting editor ikut ter-commit.
+# Uncomment baris bawah kalau tetap mau meng-ignore:
+# .vscode/
+
+# ---------- media lokal berukuran besar (OPSIONAL) ----------
+# Kalau nanti kamu menyimpan file mp3/mp4 asli di public/ dan tidak mau
+# repository membengkak, uncomment baris berikut (simpan file di CDN/storage):
+# public/audio/
+# public/video/
+# *.mp3
+# *.mp4
