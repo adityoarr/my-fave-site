@@ -1,7 +1,7 @@
 /* ==========================================================
 vibes·arr — interaksi utama
 nav • reveal • flip • filter • player audio lokal
-YouTube IFrame API (fetch API + auto-next + loop ke awal)
+YouTube IFrame API (fetch API + auto-next + loop)
 progres baca • footer tahun
 ========================================================== */
 
@@ -32,7 +32,7 @@ function init() {
     }));
   }
 
-  /* ---------- 2. reveal on scroll + stagger ---------- */
+  /* ---------- 2. reveal on scroll ---------- */
   $$('[data-stagger]').forEach((parent) => {
     $$('.rv', parent).forEach((el, i) => {
       el.style.transitionDelay = `${Math.min(i * 65, 520)}ms`;
@@ -46,7 +46,7 @@ function init() {
   }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
   $$('.rv').forEach((el) => io.observe(el));
 
-  /* ---------- 3. kata berganti di masthead home ---------- */
+  /* ---------- 3. kata berganti ---------- */
   const flip = $('#flipWord');
   if (flip) {
     const words = [
@@ -67,26 +67,36 @@ function init() {
     }, 2400);
   }
 
-  /* ---------- 4. filter kategori (listen & read) ---------- */
+  /* ---------- 4. filter kategori ---------- */
   const filterTargets = $$('.track, .book');
   const filterGroups = $$('.group');
 
-  $$('.fbtn').forEach((btn) => {
+  $$('.fbtn').forEach(btn => {
     btn.addEventListener('click', () => {
-      $$('.fbtn').forEach((b) => b.classList.remove('on'));
+      // Ambil ulang semua trek dan grup setiap kali filter diklik
+      const filterTargets = $$('.track, .book');
+      const filterGroups  = $$('.group');
+      
+      // Update visual tombol aktif
+      $$('.fbtn').forEach(b => b.classList.remove('on'));
       btn.classList.add('on');
+      
       const f = btn.dataset.filter;
-      filterTargets.forEach((item) => {
+      
+      // Filter trek
+      filterTargets.forEach(item => {
         item.hidden = !(f === 'all' || item.dataset.cat === f);
       });
-      filterGroups.forEach((g) => {
-        g.hidden = !$$('.track', g).some((t) => !t.hidden);
+      
+      // Sembunyikan grup yang tidak punya trek visible
+      filterGroups.forEach(g => {
+        g.hidden = !$$('.track', g).some(t => !t.hidden);
       });
     });
   });
 
   /* ==========================================================
-     BAGIAN A — PLAYER AUDIO LOKAL (HTML5)
+     BAGIAN A — PLAYER AUDIO LOKAL
      ========================================================== */
   const nowbar = $('#nowbar');
   let audio = null;
@@ -112,7 +122,7 @@ function init() {
 
     function selectAudio(track, autoplay = true) {
       if (!track || !track.dataset.src) return;
-      stopYt(); // matikan YouTube kalau aktif
+      stopYt();
 
       $$('.track.playing').forEach((t) => {
         t.classList.remove('playing');
@@ -156,10 +166,9 @@ function init() {
       if (list.indexOf(curAudioTrack) === list.length - 1) setUI(false);
       else stepAudio(1);
     });
-    audio.addEventListener('error', () => setUI(false));
 
     nbPlay.addEventListener('click', () => {
-      if (currentYtTrack && ytPlayer) {           // kontrol YouTube bila aktif
+      if (currentYtTrack && ytPlayer) {
         isYtPlaying ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
         return;
       }
@@ -175,22 +184,19 @@ function init() {
     nbBar.addEventListener('click', (e) => {
       const r = nbBar.getBoundingClientRect();
       const ratio = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1);
-
-      // seek untuk trek YouTube
       if (currentYtTrack && ytPlayer && typeof ytPlayer.seekTo === 'function') {
         const durT = ytPlayer.getDuration() || 0;
         if (durT) ytPlayer.seekTo(ratio * durT, true);
         return;
       }
-
-      // seek untuk audio lokal
       if (!audio.duration) return;
       audio.currentTime = ratio * audio.duration;
     });
 
     $$('.track').forEach((track) => {
       if (track.dataset.src && track.dataset.type !== 'yt') {
-        track.addEventListener('click', () => {
+        track.addEventListener('click', (e) => {
+          if (e.target.closest('.t-channel')) return;
           if (curAudioTrack === track) (audio.paused ? audio.play() : audio.pause());
           else selectAudio(track);
         });
@@ -199,7 +205,7 @@ function init() {
   }
 
   /* ==========================================================
-     BAGIAN B — YOUTUBE IFRAME API + FETCH API KAMU
+     BAGIAN B — YOUTUBE IFRAME API + FETCH API
      ========================================================== */
   let ytPlayer = null;
   let ytTracks = [];
@@ -207,6 +213,7 @@ function init() {
   let isYtPlaying = false;
   let ytApiReady = false;
   let ytProgressTimer = null;
+
   const fmtTime = (s) => {
     if (!isFinite(s) || s <= 0) return '0:00';
     return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -225,7 +232,7 @@ function init() {
       fill.style.width = durT > 0 ? `${(curT / durT) * 100}%` : '0%';
       if (cur) cur.textContent = fmtTime(curT);
       if (dur && durT > 0) dur.textContent = fmtTime(durT);
-    }, 500); // polling tiap 0.5 detik
+    }, 500);
   }
 
   function stopYtProgress() {
@@ -240,86 +247,129 @@ function init() {
     window.onYouTubeIframeAPIReady = () => { ytApiReady = true; };
   }
 
-  // Menerima array hasil proxy ATAU bentuk mentah { data: { content: [] } }
-  function normalizeVideos(input) {
-    const list = Array.isArray(input) ? input : (input?.data?.content ?? []);
-    return list
-      .filter((v) => v && (v.id || v.videoCode) && v.isEmbeddable !== false && (v.privacyStatus ?? 'public') === 'public')
+  async function fetchYtTracks() {
+    let payload = null;
+
+    try {
+      const r = await fetch('/api/yt-fave');
+      if (r.ok) payload = await r.json();
+    } catch (e) {}
+
+    if (!payload) {
+      try {
+        const r = await fetch('https://api.adityoarr.com/yt-fave/v1/videos?page=0&size=100');
+        payload = await r.json();
+      } catch (e) {}
+    }
+
+    const list = Array.isArray(payload) ? payload : (payload?.data?.content ?? []);
+    
+    const videos = list
+      .filter((v) => v && (v.id || v.videoCode))
       .map((v) => {
-        const id = v.id || v.videoCode;
-        const thumb = String(v.thumb || v.thumbnailLink || '').replace(/(maxres|sd)default\.jpg$/, 'hqdefault.jpg');        
+        const musicCat = String(v.musicCategory || v.category || '').toLowerCase();
+        const categoryMap = {
+          'ost anime': 'ost',
+          'non-anime': 'non',
+          'remix': 'remix',
+          'instrumental': 'instrumental',
+          'islamic': 'islamic',
+        };
+        const categoryId = categoryMap[musicCat] || v.category || 'non';
+        
         return {
-          id,
+          id: v.id || v.videoCode,
           title: v.title || 'Tanpa judul',
           artist: v.artist || v.channelName || 'YouTube',
-          channelLink: v.channelLink || v.channelLink === undefined
-            ? v.channelLink
-            : `https://www.youtube.com/results?search_query=${encodeURIComponent(v.artist || v.channelName || '')}`,
-          thumb: thumb || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
-          category: v.category || 'Music',
+          channelLink: v.channelLink || null,
+          thumb: String(v.thumb || v.thumbnailLink || '').replace(/(maxres|sd)default\.jpg$/, 'hqdefault.jpg')
+            || `https://i.ytimg.com/vi/${v.id || v.videoCode}/hqdefault.jpg`,
+          category: categoryId,
+          source: v.source || 'youtube',
+          localSrc: v.localSrc || null,
         };
       });
+
+    renderTracksByCategory(videos);
   }
 
-  function renderYtList(videos) {
-    const group = document.querySelector('[data-group="youtube"]');
-    const listEl = group?.querySelector('.tracks');
-    if (!listEl) return;
+  function renderTracksByCategory(videos) {
+    // Kosongkan semua grup dulu
+    $$('.group').forEach((group) => {
+      const listEl = group.querySelector('.tracks');
+      if (listEl) listEl.innerHTML = '';
+    });
 
-    listEl.innerHTML = '';
+    // Render video ke grup yang sesuai
     videos.forEach((v, i) => {
+      const group = document.querySelector(`[data-group="${v.category}"]`);
+      const listEl = group?.querySelector('.tracks');
+      if (!listEl) return;
+
+      const isLocal = v.source === 'local' && v.localSrc;
+      const isYouTube = v.source === 'youtube' || !v.localSrc;
+      
       const li = document.createElement('li');
       li.className = 'track rv in';
-      li.dataset.cat = 'youtube';
-      li.dataset.yt = v.id;
-      li.dataset.type = 'yt';
+      li.dataset.cat = v.category;
+      
+      if (isLocal) {
+        li.dataset.src = v.localSrc;
+        li.dataset.type = 'audio';
+      } else {
+        li.dataset.yt = v.id;
+        li.dataset.type = 'yt';
+      }
+      
       li.tabIndex = 0;
+
+      const channelHtml = v.channelLink
+        ? `<a class="t-channel" href="${esc(v.channelLink)}" target="_blank" rel="noopener noreferrer">${esc(v.artist)} ↗</a>`
+        : `<span>${esc(v.artist)}</span>`;
+
+      const statusText = isLocal ? '● audio lokal' : '● via YouTube';
+      const statusClass = isLocal ? 'ok' : 'ok';
+
       li.innerHTML = `
-        <span class="t-idx">${String(i + 1).padStart(2, '0')}</span>
+        <span class="t-idx">${String(listEl.children.length + 1).padStart(2, '0')}</span>
         <button type="button" class="t-play" aria-label="Putar ${esc(v.title)}">▶</button>
         <img src="${esc(v.thumb)}" alt="" width="44" height="44" loading="lazy" decoding="async"
-            onerror="this.onerror=null;this.src='${THUMB_FALLBACK}'">
+             onerror="this.onerror=null;this.src='${THUMB_FALLBACK}'">
         <div class="t-info">
           <strong>${esc(v.title)}</strong>
-          ${v.channelLink
-            ? `<a class="t-channel" href="${esc(v.channelLink)}" target="_blank" rel="noopener noreferrer">${esc(v.artist)} ↗</a>`
-            : `<span>${esc(v.artist)}</span>`}
+          ${channelHtml}
         </div>
         <span class="t-dur">${esc(v.category)}</span>
-        <span class="t-status ok">● via YouTube</span>
+        <span class="t-status ${statusClass}">${statusText}</span>
         <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       `;
       listEl.appendChild(li);
     });
 
-    const count = group.querySelector('.g-count');
-    if (count) count.textContent = `${videos.length} trek`;
-  }
+    // Update count
+    $$('.group').forEach((group) => {
+      const count = group.querySelector('.g-count');
+      const listEl = group.querySelector('.tracks');
+      if (count && listEl) count.textContent = `${listEl.children.length} trek`;
+    });
 
-  async function fetchYtTracks() {
-    let payload = null;
+    // Sembunyikan grup kosong
+    $$('.group').forEach((group) => {
+      const listEl = group.querySelector('.tracks');
+      if (listEl && listEl.children.length === 0) {
+        group.style.display = 'none';
+      } else {
+        group.style.display = '';
+      }
+    });
 
-    // 1) lewat proxy Astro (disarankan, bebas CORS)
-    try {
-      const r = await fetch('/api/yt-fave');
-      if (r.ok) payload = await r.json();
-    } catch (e) { /* proxy belum aktif */ }
-
-    // 2) fallback langsung ke API (hanya sukses jika CORS API sudah dibuka)
-    if (!payload) {
-      const r = await fetch('https://api.adityoarr.com/yt-fave/v1/videos?page=0&size=100&embeddable=true&category=Music&sort=createdAt&direction=asc');
-      payload = await r.json();
-    }
-
-    const videos = normalizeVideos(payload);
-    if (videos.length) renderYtList(videos);
+    initYtTracks();
   }
 
   function initYtTracks() {
     ytTracks = $$('.track[data-type="yt"]');
     ytTracks.forEach((track) => {
       track.addEventListener('click', (e) => {
-        // Jika user klik link channel, biarkan browser handle — jangan putar video
         if (e.target.closest('.t-channel')) return;
         playYtTrack(track);
       });
@@ -328,7 +378,8 @@ function init() {
 
   function stopYt() {
     if (ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
-    document.getElementById('ytPlayerWrap')?.classList.remove('show');
+    document.getElementById('ytPlayerWrap')?.classList.remove('show', 'video-hidden');
+    document.getElementById('ytRestoreBtn')?.classList.remove('show');
     currentYtTrack = null;
     isYtPlaying = false;
     stopYtProgress();
@@ -349,15 +400,16 @@ function init() {
     if (btn) btn.textContent = '❚❚';
 
     document.getElementById('nbTitle').textContent = track.querySelector('.t-info strong')?.textContent ?? '—';
-    document.getElementById('nbArtist').textContent = track.querySelector('.t-info span')?.textContent ?? '—';
+    document.getElementById('nbArtist').textContent = track.querySelector('.t-info span, .t-channel')?.textContent ?? '—';
     document.getElementById('nowbar').classList.add('show');
+    document.getElementById('ytPlayerWrap').classList.add('show');
+    document.getElementById('ytPlayerWrap').classList.add('video-hidden');
+    document.getElementById('ytRestoreBtn').classList.add('show');
+
     document.getElementById('nbFill').style.width = '0%';
     document.getElementById('nbCur').textContent = '0:00';
     document.getElementById('nbDur').textContent = '0:00';
     startYtProgress();
-    document.getElementById('ytPlayerWrap').classList.add('show');
-
-    if (YT_HIDE_VIDEO_DEFAULT) hideYtVideo();
 
     const videoId = track.dataset.yt;
     if (ytPlayer && ytPlayer.loadVideoById) {
@@ -383,7 +435,6 @@ function init() {
 
   function onYtStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
-      // AUTO-NEXT + LOOP: habis lagu terakhir → kembali ke trek pertama
       const visible = ytTracks.filter((t) => !t.hidden);
       if (!visible.length) return;
       const pos = visible.indexOf(currentYtTrack);
@@ -397,12 +448,22 @@ function init() {
     }
   }
 
+  const ytMin = document.getElementById('ytMinBtn');
+  const ytRestore = document.getElementById('ytRestoreBtn');
+
+  ytMin?.addEventListener('click', () => {
+    document.getElementById('ytPlayerWrap')?.classList.add('video-hidden');
+    ytRestore?.classList.add('show');
+  });
+
+  ytRestore?.addEventListener('click', () => {
+    document.getElementById('ytPlayerWrap')?.classList.remove('video-hidden');
+    ytRestore?.classList.remove('show');
+  });
+
   document.getElementById('ytCloseBtn')?.addEventListener('click', () => {
     stopYt();
-    stopYtProgress();
     document.getElementById('nowbar')?.classList.remove('show');
-    document.getElementById('ytPlayerWrap')?.classList.remove('video-hidden');
-    document.getElementById('ytRestoreBtn')?.classList.remove('show');
     $$('.track.playing').forEach((t) => {
       t.classList.remove('playing');
       const b = $('.t-play', t);
@@ -410,33 +471,12 @@ function init() {
     });
   });
 
-  /* ---------- YouTube: sembunyikan / munculkan video ---------- */
-  const YT_HIDE_VIDEO_DEFAULT = true; // true = video otomatis hidden saat play (audio-only mode)
-
-  const ytWrap    = document.getElementById('ytPlayerWrap');
-  const ytMin     = document.getElementById('ytMinBtn');
-  const ytRestore = document.getElementById('ytRestoreBtn');
-
-  const hideYtVideo = () => {
-    ytWrap?.classList.add('video-hidden');
-    ytRestore?.classList.add('show');
-  };
-  const showYtVideo = () => {
-    ytWrap?.classList.remove('video-hidden');
-    ytRestore?.classList.remove('show');
-  };
-
-  ytMin?.addEventListener('click', hideYtVideo);
-  ytRestore?.addEventListener('click', showYtVideo);
-
-  if (document.querySelector('[data-group="youtube"]')) {
+  if (document.querySelector('.group')) {
     loadYTAPI();
-    fetchYtTracks()
-      .catch((err) => console.warn('Gagal memuat API YouTube, memakai fallback.', err))
-      .finally(() => initYtTracks());
+    fetchYtTracks().catch((err) => console.warn('Gagal memuat API YouTube.', err));
   }
 
-  /* ---------- progres baca (halaman read) ---------- */
+  /* ---------- progres baca ---------- */
   const books = $$('.book');
   if (books.length) {
     let store = {};
@@ -465,7 +505,6 @@ function init() {
     });
   }
 
-  /* ---------- footer tahun ---------- */
   const y = $('#y');
   if (y) y.textContent = new Date().getFullYear();
 }

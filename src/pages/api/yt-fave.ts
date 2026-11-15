@@ -1,48 +1,85 @@
 import type { APIRoute } from 'astro';
 
-export const prerender = false; // jalan sebagai serverless function (bebas CORS)
+export const prerender = false;
 
 const API_BASE = 'https://api.adityoarr.com/yt-fave/v1/videos';
 
-export const GET: APIRoute = async () => {
+const ENV_CATEGORY  = '';
+const ENV_CHANNEL   = '';
+const ENV_SEARCH    = '';
+const ENV_SORT      = 'createdAt';
+const ENV_DIRECTION = 'desc';
+
+// Mapping musicCategory dari API ke ID kategori di frontend
+const CATEGORY_MAP: Record<string, string> = {
+  'ost anime': 'ost',
+  'non-anime': 'non',
+  'remix': 'remix',
+  'instrumental': 'instrumental',
+  'islamic': 'islamic',
+};
+
+export const GET: APIRoute = async ({ url }) => {
+  const q         = url.searchParams;
+  const category  = q.get('category')    ?? ENV_CATEGORY;
+  const channel   = q.get('channelName') ?? ENV_CHANNEL;
+  const search    = q.get('search')      ?? ENV_SEARCH;
+  const sort      = q.get('sort')        ?? ENV_SORT;
+  const direction = (q.get('direction')  ?? ENV_DIRECTION) === 'asc' ? 'asc' : 'desc';
+
   try {
     const all: any[] = [];
     let page = 0;
     let last = false;
 
-    // Loop paginasi sampai halaman terakhir (38 video = 2 halaman dgn size 20)
     while (!last && page < 10) {
-      const url = `${API_BASE}?page=${page}&size=100&sort=createdAt&direction=asc`;
-      const res = await fetch(url, { headers: { Accept: 'application/json' } });
+      const params = new URLSearchParams({
+        page: String(page),
+        size: '100',
+        sort,
+        direction,
+      });
+      if (category) params.set('category', category);
+      if (channel)  params.set('channelName', channel);
+      if (search)   params.set('search', search);
+
+      const res = await fetch(`${API_BASE}?${params.toString()}`, {
+        headers: { Accept: 'application/json' },
+      });
       if (!res.ok) throw new Error(`Upstream status ${res.status}`);
       const json = await res.json();
 
-      const content = json?.data?.content ?? [];
-      all.push(...content);
-
+      all.push(...(json?.data?.content ?? []));
       last = json?.data?.last ?? true;
       page++;
     }
 
-    // Normalisasi + filter hanya yang boleh di-embed
     const videos = all
-      .filter((v) => v && v.videoCode && v.isEmbeddable !== false && (v.privacyStatus ?? 'public') === 'public')
-      .map((v) => ({
-        id: v.videoCode,
-        title: v.title || 'Tanpa judul',
-        artist: v.channelName || 'YouTube',
-        channelLink: v.channelLink || `https://www.youtube.com/results?search_query=${encodeURIComponent(v.channelName || '')}`,
-        thumb: String(v.thumbnailLink || '').replace(/(maxres|sd)default\.jpg$/, 'hqdefault.jpg')
-          || `https://i.ytimg.com/vi/${v.videoCode}/hqdefault.jpg`,
-        category: v.category || 'Music',
-        link: v.originalLink || `https://www.youtube.com/watch?v=${v.videoCode}`,
-      }));
+      .filter((v) => v && v.videoCode)
+      .map((v) => {
+        const musicCat = String(v.musicCategory || '').toLowerCase();
+        const categoryId = CATEGORY_MAP[musicCat] || 'non'; // fallback ke non-anime
+        
+        return {
+          id: v.videoCode,
+          title: v.title || 'Tanpa judul',
+          artist: v.channelName || 'YouTube',
+          channelLink: v.channelLink || null,
+          thumb: String(v.thumbnailLink || '').replace(/(maxres|sd)default\.jpg$/, 'hqdefault.jpg')
+            || `https://i.ytimg.com/vi/${v.videoCode}/hqdefault.jpg`,
+          category: categoryId,           // ID untuk filter
+          categoryLabel: musicCat || 'non-anime', // label asli untuk debug
+          source: v.source || 'youtube',  // 'youtube' atau 'local'
+          localSrc: v.localSrc || null,   // URL file MP3 lokal (jika source = local)
+          ytLink: v.originalLink || `https://www.youtube.com/watch?v=${v.videoCode}`,
+        };
+      });
 
     return new Response(JSON.stringify(videos), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300', // cache 5 menit
+        'Cache-Control': 'public, max-age=300',
       },
     });
   } catch (err) {
