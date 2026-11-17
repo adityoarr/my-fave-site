@@ -4,6 +4,18 @@ export const prerender = false;
 
 const API_BASE = 'https://api.adityoarr.com/yt-fave/v1/watchlists';
 
+// Mapping category (API) -> id section di halaman watchlist
+const SECTION_MAP: Record<string, string> = {
+  series: 'series',
+  anime: 'anime',
+  movie: 'movie',
+  film: 'movie',
+  dokumenter: 'dokumenter',
+  documentary: 'dokumenter',
+  '18+': 'adult',
+  adult: 'adult',
+};
+
 export const GET: APIRoute = async () => {
   try {
     const all: any[] = [];
@@ -23,14 +35,18 @@ export const GET: APIRoute = async () => {
 
     const items = all
       .filter((w) => w && w.id)
-      .map((w) => ({
-        id: w.id,
-        title: w.title || 'Tanpa judul',
-        category: w.category || '-',
-        year: w.year ?? null,
-        episodes: w.detailCount ?? 0,
-        createdAt: w.createdAt ?? null,
-      }))
+      .map((w) => {
+        const rawCategory = String(w.category ?? '').toLowerCase().trim();
+        return {
+          id: w.id,
+          title: w.title || 'Tanpa judul',
+          category: w.category || '-',
+          section: SECTION_MAP[rawCategory] ?? null, // null = kategori tidak dikenal
+          year: w.year ?? null,
+          episodes: w.detailCount ?? 0,
+          createdAt: w.createdAt ?? null,
+        };
+      })
       .sort((a, b) => String(b.createdAt ?? '').localeCompare(String(a.createdAt ?? '')));
 
     return new Response(JSON.stringify(items), {
