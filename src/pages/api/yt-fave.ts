@@ -8,7 +8,7 @@ const ENV_CATEGORY  = '';
 const ENV_CHANNEL   = '';
 const ENV_SEARCH    = '';
 const ENV_SORT      = 'createdAt';
-const ENV_DIRECTION = 'desc';
+const ENV_DIRECTION = 'asc';
 
 // Mapping musicCategory dari API ke ID kategori di frontend
 const CATEGORY_MAP: Record<string, string> = {
