@@ -324,7 +324,7 @@ body[data-page="listen"]{padding-bottom:110px}
 .p-cover{position:relative;overflow:hidden}
 .p-cover::after{content:'';position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,transparent 55%,rgba(10,8,7,.6))}
-.p-cover img{aspect-ratio:2/3;width:100%;object-fit:cover;filter:saturate(.85);transition:transform .5s}
+.p-cover img{aspect-ratio:16/9;width:100%;object-fit:cover;filter:saturate(.85);transition:transform .5s}
 .poster:hover .p-cover img{transform:scale(1.06)}
 .p-status{position:absolute;top:.7rem;left:.7rem;z-index:2;font-family:var(--font-m);font-size:.58rem;
   letter-spacing:.1em;text-transform:uppercase;padding:.35em .85em;border-radius:999px;

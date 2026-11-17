@@ -1,0 +1,198 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export const prerender = false; // on-demand / serverless, ambil data saat request
+
+const id = Astro.params.id ?? '';
+const API = 'https://api.adityoarr.com/yt-fave/v1';
+
+const embedOk = (ep: any) =>
+  !!ep?.embedLink && ep.embedLink !== 'https://-' && /^https?:\/\//.test(ep.embedLink);
+
+async function fetchAllPages(base: string) {
+  const all: any[] = [];
+  let page = 0;
+  let last = false;
+  while (!last && page < 20) {
+    const res = await fetch(`${base}?page=${page}&size=100`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Upstream ${res.status}`);
+    const json = await res.json();
+    all.push(...(json?.data?.content ?? []));
+    last = json?.data?.last ?? true;
+    page++;
+  }
+  return all;
+}
+
+let episodes: any[] = [];
+let meta: { title: string; category: string; year: number | null } | null = null;
+let loadError = '';
+
+if (!/^[0-9a-zA-Z-]{6,}$/.test(id)) {
+  loadError = 'ID series tidak valid.';
+} else {
+  try {
+    const [details, lists] = await Promise.all([
+      fetchAllPages(`${API}/watchlists/${id}/details`),
+      fetchAllPages(`${API}/watchlists`),
+    ]);
+    const found = lists.find((w) => String(w.id) === String(id));
+    meta = found ? { title: found.title, category: found.category, year: found.year } : null;
+
+    // URUT DESC berdasarkan nomor episode (terbesar dulu)
+    episodes = details
+      .filter((d) => d && d.id != null)
+      .sort((a, b) => (Number(b.episode) || 0) - (Number(a.episode) || 0));
+  } catch (e) {
+    loadError = 'Gagal memuat data episode dari API.';
+  }
+}
+---
+
+<BaseLayout
+  title={`${meta?.title ?? 'Series'} — Watchlist — vibes·arr`}
+  description="Daftar episode dari series pilihan."
+  acc="watch"
+  page="watchlist"
+>
+  <style>
+    .ep-list{display:flex;flex-direction:column;margin-top:2rem}
+    .ep-row{
+      display:grid;grid-template-columns:4.5rem 1fr auto auto;gap:1.1rem;align-items:center;
+      padding:.85rem .6rem;border-bottom:1px solid var(--line);
+      cursor:pointer;transition:background .3s;text-align:left;width:100%;
+    }
+    .ep-row:hover{background:rgba(255,255,255,.03)}
+    .ep-no{font-family:var(--font-m);font-size:.72rem;color:var(--acc)}
+    .ep-info{min-width:0}
+    .ep-info strong{display:block;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ep-info span{font-size:.78rem;color:var(--mut);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ep-src{
+      font-family:var(--font-m);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:.3em .8em;white-space:nowrap;
+    }
+    .ep-act{font-family:var(--font-m);font-size:.66rem;color:var(--acc);white-space:nowrap}
+    .back-link{
+      font-family:var(--font-m);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--mut);display:inline-flex;gap:.5rem;align-items:center;margin-bottom:1rem;transition:color .3s;
+    }
+    .back-link:hover{color:var(--ink)}
+    @media (max-width:640px){
+      .ep-row{grid-template-columns:3.6rem 1fr auto}
+      .ep-src{display:none}
+    }
+  </style>
+
+  <section class="p-hero">
+    <div class="wrap">
+      <a class="back-link" href="/watchlist">← kembali ke watchlist</a>
+      <p class="crumb">rak / tontonan / series</p>
+      <h1 style="font-size:clamp(2.2rem,6vw,4rem)">{meta?.title ?? 'Series'}</h1>
+
+      {meta && <p class="lead">{meta.year ?? '—'}</p>}
+
+      <div class="p-stats">
+        <span><b>{episodes.length}</b> episode</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    {loadError ? (
+      <p class="fine" style="margin-top:2rem">{loadError}</p>
+    ) : episodes.length === 0 ? (
+      <p class="fine" style="margin-top:2rem">belum ada episode untuk series ini.</p>
+    ) : (
+      <div class="ep-list" data-stagger>
+        {episodes.map((ep) => (
+          <button
+            type="button"
+            class="ep-row rv"
+            data-embed={embedOk(ep) ? ep.embedLink : undefined}
+            data-link={ep.originalLink || undefined}
+            data-title={`Episode ${ep.episode}${ep.subtitle && ep.subtitle !== '-' ? ' — ' + ep.subtitle : ''}`}
+          >
+            <span class="ep-no">EP {ep.episode}</span>
+            <span class="ep-info">
+              <strong>Episode {ep.episode}</strong>
+              <span>{ep.subtitle && ep.subtitle !== '-' ? ep.subtitle : (ep.source ?? '—')}</span>
+            </span>
+            <span class="ep-src">{ep.source ?? '—'}</span>
+            <span
+              class="ep-act"
+              title={embedOk(ep) ? 'Putar embed' : 'Buka tautan asli di tab baru'}
+            >
+              {embedOk(ep) ? '▶ putar' : '↗'}
+            </span>
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+
+  <!-- modal player embed -->
+  <div id="epModal" class="modal" hidden>
+    <div class="m-back" data-close></div>
+    <div class="m-box">
+      <div class="m-frame">
+        <iframe
+          id="epFrame"
+          src="about:blank"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowfullscreen
+          title="player episode"
+        ></iframe>
+      </div>
+      <div class="m-bar">
+        <strong id="epModalTitle" class="m-title">—</strong>
+        <button class="m-close" type="button" data-close>✕ tutup [esc]</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal  = document.getElementById('epModal') as HTMLDivElement | null;
+    const frame  = document.getElementById('epFrame') as HTMLIFrameElement | null;
+    const mTitle = document.getElementById('epModalTitle') as HTMLElement | null;
+
+    function openEmbed(url: string, title: string) {
+      if (!modal || !frame) return;
+      frame.src = url;
+      if (mTitle) mTitle.textContent = title || '—';
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      if (!modal || !frame) return;
+      modal.hidden = true;
+      frame.src = 'about:blank'; // menghentikan embed
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.ep-row').forEach((row) => {
+      row.addEventListener('click', () => {
+        const embed = (row as HTMLElement).dataset.embed;
+        const link  = (row as HTMLElement).dataset.link;
+        const title = (row as HTMLElement).dataset.title || '';
+
+        if (embed) {
+          openEmbed(embed, title);
+        } else if (link) {
+          // embedLink "https://-" / tidak valid → buka originalLink di tab baru
+          window.open(link, '_blank', 'noopener');
+        } else {
+          row.classList.add('deny');
+          setTimeout(() => row.classList.remove('deny'), 450);
+        }
+      });
+    });
+
+    modal?.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', closeModal));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && !modal.hidden) closeModal();
+    });
+  </script>
+</BaseLayout>

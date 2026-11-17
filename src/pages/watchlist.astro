@@ -2,149 +2,74 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const sections = [
-  {
-    no: '01',
-    title: 'Film',
-    items: [
-      {
-        seed: 'w-interstellar',
-        title: 'Interstellar',
-        meta: '2014 · Christopher Nolan',
-        note: '“Relate sama ending-nya setiap rewatch.”',
-        statusClass: 'ok',
-        status: '✓ koleksi pribadi',
-      },
-      {
-        seed: 'w-whiplash',
-        title: 'Whiplash',
-        meta: '2014 · Damien Chazelle',
-        note: '“Tensi drumnya bikin ikut sesak napas.”',
-        statusClass: 'ok',
-        status: '✓ koleksi pribadi',
-      },
-      {
-        seed: 'w-raid',
-        title: 'The Raid',
-        meta: '2011 · Gareth Evans',
-        note: '“Wajib — nunggu file rapi dulu.”',
-        statusClass: 'no',
-        status: '✕ belum ada file',
-      },
-      {
-        seed: 'w-chihiro',
-        title: 'Spirited Away',
-        meta: '2001 · Studio Ghibli',
-        note: '“Comfort film sepanjang masa.”',
-        statusClass: 'ok',
-        status: '✓ koleksi pribadi',
-      },
-      {
-        seed: 'w-yourname',
-        title: 'Your Name',
-        meta: '2016 · Makoto Shinkai',
-        note: '“Soundtracknya masih nyangkut di kepala.”',
-        statusClass: 'yt',
-        status: '↗ tersedia di YouTube',
-      },
-    ],
+  { 
+    no: '01', 
+    title: 'Series', 
+    items: null, // diisi live dari API
+    id: 'series' 
   },
   {
     no: '02',
     title: 'Anime',
     items: [
-      {
-        seed: 'w-frieren',
-        title: 'Frieren: Beyond Journey’s End',
-        meta: '2023 · Madhouse',
-        note: '“Anime terbaik dua dekade terakhir. No debat.”',
-        statusClass: 'yt',
-        status: '↗ tersedia di YouTube',
-      },
-      {
-        seed: 'w-vinland',
-        title: 'Vinland Saga S1',
-        meta: '2019 · Wit Studio',
-        note: '“Aku tidak punya musuh. 🪓”',
-        statusClass: 'ok',
-        status: '✓ koleksi pribadi',
-      },
-      {
-        seed: 'w-mob',
-        title: 'Mob Psycho 100',
-        meta: '2016 · Bones',
-        note: '“Nunggu mood rewatch yang pas.”',
-        statusClass: 'no',
-        status: '✕ belum ada file',
-      },
-      {
-        seed: 'w-abyss',
-        title: 'Made in Abyss',
-        meta: '2017 · Kinema Citrus',
-        note: '“Imut di luar, traumatis di dalam.”',
-        statusClass: 'ok',
-        status: '✓ koleksi pribadi',
-      },
+      { seed: 'w-frieren', title: 'Frieren: Beyond Journey’s End', meta: '2023 · Madhouse', note: '“Anime terbaik dua dekade terakhir. No debat.”', statusClass: 'yt', status: '↗ tersedia di YouTube' },
+      { seed: 'w-vinland', title: 'Vinland Saga S1', meta: '2019 · Wit Studio', note: '“Aku tidak punya musuh. 🪓”', statusClass: 'ok', status: '✓ koleksi pribadi' },
+      { seed: 'w-mob', title: 'Mob Psycho 100', meta: '2016 · Bones', note: '“Nunggu mood rewatch yang pas.”', statusClass: 'no', status: '✕ belum ada file' },
+      { seed: 'w-abyss', title: 'Made in Abyss', meta: '2017 · Kinema Citrus', note: '“Imut di luar, traumatis di dalam.”', statusClass: 'ok', status: '✓ koleksi pribadi' },
+    ],
+  },  
+  {
+    no: '03',
+    title: 'Movie',
+    items: [
+      { seed: 'w-interstellar', title: 'Interstellar', meta: '2014 · Christopher Nolan', note: '“Relate sama ending-nya setiap rewatch.”', statusClass: 'ok', status: '✓ koleksi pribadi' },
+      { seed: 'w-whiplash', title: 'Whiplash', meta: '2014 · Damien Chazelle', note: '“Tensi drumnya bikin ikut sesak napas.”', statusClass: 'ok', status: '✓ koleksi pribadi' },
+      { seed: 'w-raid', title: 'The Raid', meta: '2011 · Gareth Evans', note: '“Wajib — nunggu file rapi dulu.”', statusClass: 'no', status: '✕ belum ada file' },
+      { seed: 'w-chihiro', title: 'Spirited Away', meta: '2001 · Studio Ghibli', note: '“Comfort film sepanjang masa.”', statusClass: 'ok', status: '✓ koleksi pribadi' },
+      { seed: 'w-yourname', title: 'Your Name', meta: '2016 · Makoto Shinkai', note: '“Soundtracknya masih nyangkut di kepala.”', statusClass: 'yt', status: '↗ tersedia di YouTube' },
     ],
   },
   {
-    no: '03',
-    title: 'Dokumenter & Shorts',
+    no: '04',
+    title: 'Dokumenter',
     items: [
-      {
-        seed: 'w-ocean',
-        title: 'Samudra Dalam',
-        meta: 'Klip pilihan · rasa-rasa NatGeo',
-        note: '“Biar ingat dunia masih lebih besar dari deadline.”',
-        statusClass: 'yt',
-        status: '↗ tersedia di YouTube',
-      },
-      {
-        seed: 'w-atacama',
-        title: 'Langit Malam Atacama',
-        meta: 'Short · 15 detik, tapi bikin tenang',
-        note: '“Diputar pas lagi overthinking.”',
-        statusClass: 'ok',
-        status: '✓ koleksi pribadi',
-      },
+      { seed: 'w-ocean', title: 'Samudra Dalam', meta: 'Klip pilihan · rasa-rasa NatGeo', note: '“Biar ingat dunia masih lebih besar dari deadline.”', statusClass: 'yt', status: '↗ tersedia di YouTube' },
+      { seed: 'w-atacama', title: 'Langit Malam Atacama', meta: 'Short · 15 detik, tapi bikin tenang', note: '“Diputar pas lagi overthinking.”', statusClass: 'ok', status: '✓ koleksi pribadi' },
     ],
+  },
+  { 
+    no: '05', 
+    title: '18+', 
+    items: [],
+    id: 'adult'
   },
 ];
 ---
 
 <BaseLayout
   title="Watchlist — vibes·arr"
-  description="Film, anime, dan tontonan pendek yang berulang kali kutonton — plus antrean yang nggak pernah menyusut."
+  description="Film, anime, series, dan tontonan pendek yang berulang kali kutonton — plus antrean yang nggak pernah menyusut."
   acc="watch"
   page="watchlist"
 >
   <section class="p-hero">
     <div class="wrap">
       <p class="crumb">rak / tontonan</p>
-      <h1>Watchlist<span class="p-dot">.</span></h1>
-
-      <p class="lead">
-        Film, anime, dan tontonan pendek yang berulang kali kutonton — plus
-        antrean yang nggak pernah menyusut. Rak ini murni katalog:
-        <b>tidak ada player maupun embed di sini</b>.
-      </p>
+      <h1>Watchlist</h1>
 
       <div class="p-stats">
-        <span><b>11</b> judul</span>
-        <span><b>6</b> koleksi pribadi</span>
-        <span><b>3</b> tersedia di YouTube</span>
-        <span><b>2</b> menunggu file</span>
+        <span><b>4</b> anime</span>
+        <span><b>Live</b> series dari API</span>
+        <span><b>5</b> movie</span>
+        <span><b>2</b> dokumenter</span>
       </div>
 
       <div class="legend">
-        <span><i class="lg" style="background:var(--c-read)"></i> ✓ koleksi pribadi (file tersimpan)</span>
+        <span><i class="lg" style="background:var(--c-read)"></i> ✓ koleksi pribadi</span>
         <span><i class="lg" style="background:var(--c-watch)"></i> ↗ tersedia di YouTube</span>
         <span><i class="lg" style="background:#8b8175"></i> ✕ belum ada file</span>
+        <span><i class="lg" style="background:var(--c-games)"></i> ▶ series (klik = daftar episode)</span>
       </div>
-
-      <p class="fine">
-        * tidak ada video player atau embed YouTube di halaman ini — semua
-        status murni catatan katalog pribadi.
-      </p>
     </div>
   </section>
 
@@ -155,35 +80,100 @@ const sections = [
           <span class="no">{section.no} /</span>
           <h2>{section.title}</h2>
           <span class="rule"></span>
-          <span class="more">{section.items.length} judul</span>
+          {section.items === null ? (
+            <span class="more" id="seriesCount">memuat…</span>
+          ) : (
+            <span class="more">{section.items.length} judul</span>
+          )}
         </div>
 
-        <div class="w-grid" data-stagger>
-          {
-            section.items.map((item) => (
+        {section.items === null ? (
+          <div class="w-grid" id="seriesGrid" data-stagger>
+            <p class="fine" style="grid-column:1/-1">mengambil daftar series dari API…</p>
+          </div>
+        ) : section.items.length === 0 ? (
+          <div class="w-grid">
+            <p class="fine" style="grid-column:1/-1">rak ini masih kosong — atau memang sebaiknya begitu 😌</p>
+          </div>
+        ) : (
+          <div class="w-grid" data-stagger>
+            {section.items.map((item) => (
               <article class:list={['poster', 'rv', { off: item.statusClass === 'no' }]}>
                 <div class="p-cover">
                   <img
-                    src={`https://picsum.photos/seed/${item.seed}/400/600`}
+                    src={`https://picsum.photos/seed/${item.seed}/480/270`}
                     alt={`Poster ${item.title}`}
-                    width="400"
-                    height="600"
+                    width="480"
+                    height="270"
                     loading="lazy"
                     decoding="async"
+                    onerror="this.onerror=null;this.src='/images/placeholder.svg'"
                   />
                   <span class={`p-status ${item.statusClass}`}>{item.status}</span>
                 </div>
-
                 <div class="p-meta">
                   <strong>{item.title}</strong>
                   <span>{item.meta}</span>
                   <p class="p-note">{item.note}</p>
                 </div>
               </article>
-            ))
-          }
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     ))
   }
+
+  <script>
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+
+    // Sampul generated (inisial judul) karena API watchlist tidak mengirim gambar
+    const coverFor = (title) => {
+      const ch = esc((title || '?').trim().charAt(0).toUpperCase() || '?');
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a241f"/><stop offset="1" stop-color="#141110"/></linearGradient></defs><rect width="480" height="270" fill="url(#g)"/><text x="240" y="175" font-family="monospace" font-size="120" fill="#79c0ff" opacity=".85" text-anchor="middle">${ch}</text></svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    };
+
+    async function loadSeries() {
+      const grid = document.getElementById('seriesGrid');
+      const count = document.getElementById('seriesCount');
+      if (!grid) return;
+
+      try {
+        const r = await fetch('/api/watchlists');
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const items = await r.json();
+
+        if (!Array.isArray(items) || items.length === 0) {
+          grid.innerHTML = '<p class="fine" style="grid-column:1/-1">belum ada series di API.</p>';
+          if (count) count.textContent = '0 judul';
+          return;
+        }
+
+        grid.innerHTML = items.map((s) => `
+          <a class="poster rv in" href="/series/${encodeURIComponent(s.id)}">
+            <div class="p-cover">
+              <img src="${coverFor(s.title)}" alt="" width="480" height="270" loading="lazy">
+              <span class="p-status yt">▶ series</span>
+            </div>
+            <div class="p-meta">
+              <strong>${esc(s.title)}</strong>
+              <span>${s.year ?? '—'} · ${esc(s.category)}</span>
+              <p class="p-note">${s.episodes} episode</p>
+            </div>
+          </a>
+        `).join('');
+
+        if (count) count.textContent = `${items.length} judul`;
+      } catch (err) {
+        console.warn('Gagal memuat series dari API.', err);
+        grid.innerHTML = '<p class="fine" style="grid-column:1/-1">gagal memuat daftar series dari API.</p>';
+        if (count) count.textContent = 'error';
+      }
+    }
+
+    loadSeries();
+  </script>
 </BaseLayout>
